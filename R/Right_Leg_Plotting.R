@@ -19,8 +19,7 @@ library(patchwork) # combine multiple ggplots together
 # --------------------
 
 # read a tab separated file with no headers
-#data_raw <- read_delim("H:/MultiCam/2025-10-07-reboot/11_28_2025/Width_3/Left_Leg.txt", delim = '\t', col_names = FALSE)
-data_raw <- read_delim("H:/MultiCam/2025-10-07-reboot/04_24_2026/Width_3/Right_Leg.txt", delim = '\t', col_names = FALSE)
+data_raw <- read_delim("H:/MultiCam/2025-10-07-reboot/04_24_2026/Width_1/Right_Leg.txt", delim = '\t', col_names = FALSE)
 
 split_vals <- str_split_fixed(as.character(unlist(data_raw[4, ])), "_", 2) # splitting joint and group into two columns
 
@@ -90,6 +89,13 @@ N_TIME   <- 101
 START_ROW <- 6 # where the time series data starts
 
 all_results <- list() # initializing a results list
+
+integrated_results <- data.frame(
+  plane = character(),
+  icc_integrated = numeric(),
+  sem_integrated = numeric(),
+  stringsAsFactors = FALSE
+)
 
 # looping over the 3 planes
 for (plane_name in PLANES) {
@@ -164,30 +170,43 @@ for (plane_name in PLANES) {
     icc_values[i] <- results["ICC"]
     sem_values[i] <- results["SEM"]
     
-    ## ----- Bootstrapping ----- #
-    boot_results <- bootMer(
-      model_tp, # lmer model
-      FUN = stats_fun, # get ICC and SEM
-      nsim = 10, # number of simulations
-      type = "parametric", # preserves nesting and variance structure
-      use.u = FALSE, # random effects are resimulated each time
-      parallel = "multicore", # runs on multiple cores
-      ncpus = 4 # number of cores
-    )
-    
-    # ----- CI ----- #
-    # 95% confidence intervals, removes NA if did not converge
-    icc_ci <- quantile(boot_results$t[,1], probs = c(0.025, 0.975), na.rm = TRUE)
-    sem_ci <- quantile(boot_results$t[,2], probs = c(0.025, 0.975), na.rm = TRUE)
-    
-    #icc_ci <- c(0, 0.5)
-    #sem_ci <- c(0, 0.1)
+    # ## ----- Bootstrapping ----- #
+    # boot_results <- bootMer(
+    #   model_tp, # lmer model
+    #   FUN = stats_fun, # get ICC and SEM
+    #   nsim = 10, # number of simulations
+    #   type = "parametric", # preserves nesting and variance structure
+    #   use.u = FALSE, # random effects are resimulated each time
+    #   parallel = "multicore", # runs on multiple cores
+    #   ncpus = 4 # number of cores
+    # )
+    # 
+    # # ----- CI ----- #
+    # # 95% confidence intervals, removes NA if did not converge
+    # icc_ci <- quantile(boot_results$t[,1], probs = c(0.025, 0.975), na.rm = TRUE)
+    # sem_ci <- quantile(boot_results$t[,2], probs = c(0.025, 0.975), na.rm = TRUE)
+
+    icc_ci <- c(0, 0.5)
+    sem_ci <- c(0, 0.1)
     
     icc_lower[i] <- icc_ci[1] # stores lower
     icc_upper[i] <- icc_ci[2] # stores higher
     sem_lower[i] <- sem_ci[1]
     sem_upper[i] <- sem_ci[2]
   }
+  
+  # ----- Integrated ICC ----- #
+  icc_integrated <- mean(icc_values, na.rm = TRUE)
+  sem_integrated <- mean(sem_values, na.rm = TRUE)
+  
+  integrated_results <- rbind(
+    integrated_results,
+    data.frame(
+      plane = plane_name,
+      icc_integrated = icc_integrated,
+      sem_integrated = sem_integrated
+    )
+  )
   
   # ----- Store results ----- #
   all_results[[plane_name]] <- data.frame(
@@ -201,6 +220,14 @@ for (plane_name in PLANES) {
     sem_upper = sem_upper
   )
 }
+
+# ----- Save Integrated ICC Results ----- #
+
+write.table(integrated_results,
+            file = "Output_data/Integrated_Values/Right_Leg/w1_RANK_Integrated.txt",
+            row.names = FALSE,
+            col.names = TRUE,
+            sep = "\t")
 
 # ----- ICC/SEM Plots ----- #
 
@@ -338,7 +365,7 @@ raw_z <- ggplot(df_summary_z, aes(x = time, y = mean_value, color = group, fill 
 complete_plot <- (raw_x | raw_y | raw_z ) / (icc_x | icc_y | icc_z) / (sem_x | sem_y | sem_z)
 
 # Save the plot
-ggsave(filename = "Right_Leg_3x3_Plot/W3_RANK.png", plot = complete_plot, width = 8, height = 6, dpi = 600)
+# ggsave(filename = "Right_Leg_3x3_Plot/W1_RANK.png", plot = complete_plot, width = 8, height = 6, dpi = 600)
 
 # --------------------#
 end_time = Sys.time()
