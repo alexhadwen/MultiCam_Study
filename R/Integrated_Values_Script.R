@@ -7,7 +7,7 @@ library(tidyr)
 
 # ---- 1. Read files ----
 files <- list.files(
-  path = "C:/Users/Customer/Downloads/Local Queens/Grad School/HMRL_Local/CH_vs_VW/R/Integrated_Values",
+  path = "Output_Data/Integrated_Values/Right_Leg",
   pattern = "*.txt",
   full.names = TRUE
 )
@@ -43,7 +43,7 @@ final_table <- all_data %>%
 
 # ---- 5. Save ----
 write.table(final_table,
-            file = "Integrated_Values/Integrated_Values.txt",
+            file = "Output_Data/Integrated_Values/Right_Leg/Integrated_Values.txt",
             sep = "\t",
             row.names = FALSE,
             quote = FALSE)
