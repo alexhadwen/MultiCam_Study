@@ -236,10 +236,8 @@ for (plane_name in PLANES) {
       vc <- as.data.frame(VarCorr(fit)) # all variance components from lmer
       
       var_subject <- vc$vcov[vc$grp == "subject"] # subject variance
-      #print(var_subject)
       var_error   <- attr(VarCorr(fit), "sc")^2 # square to get residual variance
-      #print(var_error)
-      
+
       icc <- var_subject / (var_subject + var_error) # calculating ICC
       sem <- sqrt(var_error) # calculating SEM
       
@@ -277,6 +275,19 @@ for (plane_name in PLANES) {
     sem_upper[i] <- sem_ci[2]
   }
   
+  # ----- Integrated ICC ----- #
+  icc_integrated <- mean(icc_values, na.rm = TRUE)
+  sem_integrated <- mean(sem_values, na.rm = TRUE)
+  
+  integrated_results <- rbind(
+    integrated_results,
+    data.frame(
+      plane = plane_name,
+      icc_integrated = icc_integrated,
+      sem_integrated = sem_integrated
+    )
+  )
+  
   # ----- Store results ----- #
   all_results[[plane_name]] <- data.frame(
     x = seq(0, 100, length.out = N_TIME),
@@ -290,6 +301,13 @@ for (plane_name in PLANES) {
   )
 }
 
+# ----- Save Integrated ICC Results ----- #
+
+# write.table(integrated_results,
+#             file = "Output_data/Integrated_Values/Right_Leg/w1_RKNEE_Integrated.txt",
+#             row.names = FALSE,
+#             col.names = TRUE,
+#             sep = "\t")
 
 # ----- ICC/SEM Plots ----- #
 
