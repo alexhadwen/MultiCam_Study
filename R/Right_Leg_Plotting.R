@@ -79,21 +79,8 @@ for (col in 1:ncol(data_clean)) { # loops through the number of columns
 
 data_clean <- rbind(trial_numbers, data_clean) # prepends the trial numbers to the first row
 
-##########
 
-# --------------------
-# Keep only stride 1
-# --------------------
-
-# keep first column (index column) plus all columns where trial number == 1
-keep_cols <- c(
-  1,
-  which(as.numeric(unlist(data_clean[1, ])) == 3)
-)
-
-data_clean_stride1 <- data_clean[, keep_cols]
-
-##########
+########## START OF CHATGPT CODE
 
 # --------------------
 # Average trials
@@ -168,7 +155,7 @@ rownames(averaged_data)[1:5] <- c(
 
 data_clean_stride1 <- averaged_data
 
-##########
+########## END OF CHATGPT CODE
 
 # --------------------
 # Linear mixed effect modelling and bootstrapping
