@@ -19,7 +19,7 @@ library(patchwork) # combine multiple ggplots together
 # --------------------
 
 # read a tab separated file with no headers
-data_raw <- read_delim("H:/MultiCam/2025-10-07-reboot/04_24_2026/Width_2/Right_Leg.txt", delim = '\t', col_names = FALSE)
+data_raw <- read_delim("H:/MultiCam/2025-10-07-reboot/04_24_2026/Width_1/Right_Leg.txt", delim = '\t', col_names = FALSE)
 
 split_vals <- str_split_fixed(as.character(unlist(data_raw[4, ])), "_", 2) # splitting joint and group into two columns
 
@@ -174,7 +174,7 @@ for (plane_name in PLANES) {
     boot_results <- bootMer(
       model_tp, # lmer model
       FUN = stats_fun, # get ICC and SEM
-      nsim = 100, # number of simulations
+      nsim = 10, # number of simulations
       type = "parametric", # preserves nesting and variance structure
       use.u = FALSE, # random effects are resimulated each time
       parallel = "multicore", # runs on multiple cores
@@ -365,7 +365,7 @@ raw_z <- ggplot(df_summary_z, aes(x = time, y = mean_value, color = group, fill 
 complete_plot <- (raw_x | raw_y | raw_z ) / (icc_x | icc_y | icc_z) / (sem_x | sem_y | sem_z)
 
 # Save the plot
-ggsave(filename = "Plots/Right_Leg/W2_RKNEE.png", plot = complete_plot, width = 8, height = 6, dpi = 600)
+# ggsave(filename = "Plots/Right_Leg/W1_RKNEE.png", plot = complete_plot, width = 8, height = 6, dpi = 600)
 
 # --------------------#
 end_time = Sys.time()
