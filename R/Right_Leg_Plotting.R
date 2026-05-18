@@ -82,10 +82,6 @@ data_clean <- rbind(trial_numbers, data_clean) # prepends the trial numbers to t
 
 ########## START OF CHATGPT CODE
 
-# --------------------
-# Average trials
-# --------------------
-
 # convert to dataframe
 data_clean <- as.data.frame(data_clean)
 
@@ -98,9 +94,7 @@ plane_row   <- as.character(unlist(data_clean[5, ]))
 
 # create grouping key
 avg_key <- paste(subject_row, joint_row, group_row, plane_row, sep = "_")
-
-# unique groups
-unique_keys <- unique(avg_key[-1])  # exclude first index column
+unique_keys <- unique(avg_key[-1])  # unique groups, exclude first index column
 
 # initialize output with index column
 averaged_data <- data.frame(Index = data_clean[-(1:5), 1])
@@ -118,10 +112,7 @@ for (key in unique_keys) {
   cols <- which(avg_key == key)
   
   # average waveform columns
-  avg_vals <- rowMeans(
-    sapply(data_clean[-(1:5), cols], as.numeric),
-    na.rm = TRUE
-  )
+  avg_vals <- rowMeans(sapply(data_clean[-(1:5), cols], as.numeric), na.rm = TRUE)
   
   averaged_data[[key]] <- avg_vals
   
@@ -136,24 +127,10 @@ for (key in unique_keys) {
 }
 
 # prepend metadata rows
-averaged_data <- rbind(
-  meta_trial,
-  meta_subject,
-  meta_joint,
-  meta_group,
-  meta_plane,
-  averaged_data
-)
+averaged_data <- rbind(meta_trial, meta_subject, meta_joint, meta_group, meta_plane, averaged_data)
+rownames(averaged_data)[1:5] <- c("Trial","Subject","Joint","Group","Plane")
 
-rownames(averaged_data)[1:5] <- c(
-  "Trial",
-  "Subject",
-  "Joint",
-  "Group",
-  "Plane"
-)
-
-data_clean_stride1 <- averaged_data
+data_clean_mean <- averaged_data
 
 ########## END OF CHATGPT CODE
 
@@ -168,6 +145,12 @@ START_ROW <- 6 # where the time series data starts
 
 all_results <- list() # initializing a results list
 
+integrated_results <- data.frame(
+  plane = character(),
+  icc_integrated = numeric(),
+  sem_integrated = numeric(),
+  stringsAsFactors = FALSE
+)
 
 # looping over the 3 planes
 for (plane_name in PLANES) {
@@ -176,12 +159,12 @@ for (plane_name in PLANES) {
   
   # ----- Filter this plane ----- #
   mask <- as.vector(
-    data_clean_stride1[5, ] == plane_name &
-      data_clean_stride1[4, ] %in% c("G1","G2","G3","G4") &
-      data_clean_stride1[3, ] %in% c("RPV")
+    data_clean_mean[5, ] == plane_name &
+      data_clean_mean[4, ] %in% c("G1","G2","G3","G4") &
+      data_clean_mean[3, ] %in% c("RPV")
   )
   
-  data <- data_clean_stride1[, mask] # applying the mask to the dataset
+  data <- data_clean_mean[, mask] # applying the mask to the dataset
   # data <- data[-c(3,5), ]
 
   # Storage for values of length N_TIME
@@ -206,6 +189,8 @@ for (plane_name in PLANES) {
       trial   = as.numeric(unlist(data[row_index, ])) # value at the specific timepoint
     )
     
+    sdev <- sd(df$trial, na.rm = TRUE)
+
     df$subject <- as.factor(as.numeric(factor(df$subject))) # S01 -> 1
     df$camera <- as.factor(as.numeric(factor(df$camera))) # G1 -> 1
     
@@ -226,7 +211,7 @@ for (plane_name in PLANES) {
       var_error   <- attr(VarCorr(fit), "sc")^2 # square to get residual variance
 
       icc <- var_subject / (var_subject + var_error) # calculating ICC
-      sem <- sqrt(var_error) # calculating SEM
+      sem <- sdev * sqrt(1 - icc)
       
       c(ICC = icc, SEM = sem) # return two total values under 'ICC' and 'SEM'
     }
