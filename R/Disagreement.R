@@ -130,7 +130,7 @@ df_summary_time %>% group_by(group) %>% shapiro_test(mean_value)
 res.aov <- anova_test(data = df_summary_time, dv = mean_value, wid = subject, within = group)
 results_anova <- get_anova_table(res.aov)
 
-results_posthoc <- df_summary_x_92 %>% pairwise_t_test(mean_value ~ group, paired = TRUE, p.adjust.method = "bonferroni")
+results_posthoc <- df_summary_time %>% pairwise_t_test(mean_value ~ group, paired = TRUE, p.adjust.method = "bonferroni")
 
 
 p_vals <- numeric(101)  # store 0–100
@@ -148,3 +148,34 @@ for (t in 0:100) {
 
 p_vals
 sig
+
+
+library(TOSTER)
+group_1 <- df_summary_time[df_summary_time$group == "0.85 m", ]
+group_4 <- df_summary_time[df_summary_time$group == "3.30 m", ]
+
+mean_g1 <- mean(group_1$mean_value, na.rm = TRUE)
+mean_g4 <- mean(group_4$mean_value, na.rm = TRUE)
+sd_g1 <- sd(group_1$mean_value, na.rm = TRUE)
+sd_g4 <- sd(group_4$mean_value, na.rm = TRUE)
+
+TOSTtwo(m1 = mean_g1, m2 = mean_g4, sd1 = sd_g1, sd2 = sd_g4, n1 = 5, n2 = 5, low_eqbound_d = -0.5, high_eqbound_d = 0.5, alpha = 0.05, var.equal = TRUE)
+
+diffs <- group_1$mean_value - group_4$mean_value
+
+lower <- -5
+upper <- 5
+mean_diff <- mean(diffs)
+se_diff <- sd(diffs) / sqrt(length(diffs))
+
+t1 <- (mean_diff - lower) / se_diff
+p1 <- 1 - pt(t1, df = length(diffs)-1)
+
+t2 <- (mean_diff - upper) / se_diff
+p2 <- pt(t2, df = length((diffs)-1))
+
+if(p1 < 0.05 & p2 < 0.05){
+  print("Equivalent")
+} else {
+  print("Not equivalent")
+}
