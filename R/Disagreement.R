@@ -19,7 +19,7 @@ library(patchwork) # combine multiple ggplots together
 # --------------------
 
 # read a tab separated file with no headers
-data_raw <- read_delim("H:/MultiCam/2025-10-07-reboot/04_24_2026/Width_3/Right_Leg.txt", delim = '\t', col_names = FALSE)
+data_raw <- read_delim("H:/MultiCam/2025-10-07-reboot/04_24_2026/Width_1/Right_Leg.txt", delim = '\t', col_names = FALSE)
 
 split_vals <- str_split_fixed(as.character(unlist(data_raw[4, ])), "_", 2) # splitting joint and group into two columns
 
@@ -103,9 +103,9 @@ df_long <- data.frame(
   meta[rep(1:nrow(meta), each = nrow(wave_data)), ] # applied the metadata to each point
 )
 
-RANK_df <- df_long %>% filter(joint == "RANK", group != "G0") # filtering
+RKNEE_df <- df_long %>% filter(joint == "RKNEE", group != "G0") # filtering
 
-df_summary <- RANK_df %>%
+df_summary <- RKNEE_df %>%
   group_by(time, joint, plane, subject, group) %>% # grouping by timepoint, joint, plane and camera group
   summarise(mean_value = mean(value, na.rm = TRUE), .groups = "drop") %>%
   mutate( # creating a single standard band around the mean
@@ -116,66 +116,74 @@ df_summary <- RANK_df %>%
                    "G4" = "3.30 m")
   )
 
+# outputting a mean per 
 df_summary_x <- df_summary %>% filter(plane == "X")
 df_summary_y <- df_summary %>% filter(plane == "Y")
 df_summary_z <- df_summary %>% filter(plane == "Z")
 
+########## End of already known code
 
-library(rstatix)
-df_summary_time <- df_summary_x[df_summary_x$time == 92, ]
+# # this is for single time point anova testing
+# df_summary_time <- df_summary_x[df_summary_x$time == 92, ]
+# df_summary_time %>% group_by(group) %>% shapiro_test(mean_value)
+# 
+# res.aov <- anova_test(data = df_summary_time, dv = mean_value, wid = subject, within = group)
+# results_anova <- get_anova_table(res.aov)
+# 
+# results_posthoc <- df_summary_time %>% pairwise_t_test(mean_value ~ group, paired = TRUE, p.adjust.method = "bonferroni")
 
-
-df_summary_time %>% group_by(group) %>% shapiro_test(mean_value)
-
-res.aov <- anova_test(data = df_summary_time, dv = mean_value, wid = subject, within = group)
-results_anova <- get_anova_table(res.aov)
-
-results_posthoc <- df_summary_time %>% pairwise_t_test(mean_value ~ group, paired = TRUE, p.adjust.method = "bonferroni")
-
-
+# This code does pointwise independent of each timepoint ANOVA
 p_vals <- numeric(101)  # store 0–100
 sig <- logical(101)
 
 for (t in 0:100) {
-  
+
   df_t <- df_summary_x[df_summary_x$time == t, ]
-  
+
   res.aov <- anova_test(data = df_t, dv = mean_value, wid = subject, within = group)
-  
+
   p_vals[t + 1] <- get_anova_table(res.aov)$p
   sig[t + 1] <- get_anova_table(res.aov)$p<.05
 }
 
-p_vals
-sig
+df_plot <- data.frame(
+  time = 0:100,
+  val = ifelse(sig, 1, NA)
+)
 
+ggplot(df_plot, aes(x = time, y = val)) +
+  geom_col(na.rm = TRUE) +
+  ylim(0, 1)
+
+########## Equivalence testing
 
 library(TOSTER)
-group_1 <- df_summary_time[df_summary_time$group == "0.85 m", ]
+group_1 <- df_summary_time[df_summary_time$group == "2.45 m", ]
 group_4 <- df_summary_time[df_summary_time$group == "3.30 m", ]
-
+ 
 mean_g1 <- mean(group_1$mean_value, na.rm = TRUE)
 mean_g4 <- mean(group_4$mean_value, na.rm = TRUE)
 sd_g1 <- sd(group_1$mean_value, na.rm = TRUE)
 sd_g4 <- sd(group_4$mean_value, na.rm = TRUE)
-
-TOSTtwo(m1 = mean_g1, m2 = mean_g4, sd1 = sd_g1, sd2 = sd_g4, n1 = 5, n2 = 5, low_eqbound_d = -0.5, high_eqbound_d = 0.5, alpha = 0.05, var.equal = TRUE)
-
-diffs <- group_1$mean_value - group_4$mean_value
-
-lower <- -5
-upper <- 5
-mean_diff <- mean(diffs)
-se_diff <- sd(diffs) / sqrt(length(diffs))
-
-t1 <- (mean_diff - lower) / se_diff
-p1 <- 1 - pt(t1, df = length(diffs)-1)
-
-t2 <- (mean_diff - upper) / se_diff
-p2 <- pt(t2, df = length((diffs)-1))
-
-if(p1 < 0.05 & p2 < 0.05){
-  print("Equivalent")
-} else {
-  print("Not equivalent")
-}
+ 
+TOSTtwo(m1 = mean_g1, m2 = mean_g4, sd1 = sd_g1, sd2 = sd_g4, n1 = 9, n2 = 9, low_eqbound_d = -0.89, high_eqbound_d = 0.89, alpha = 0.05, var.equal = TRUE)
+# need to figure out if I can use cohen's d? What all that stuff means
+# 
+# diffs <- group_1$mean_value - group_4$mean_value
+# 
+# lower <- -1
+# upper <- 1
+# mean_diff <- mean(diffs)
+# se_diff <- sd(diffs) / sqrt(length(diffs))
+# 
+# t1 <- (mean_diff - lower) / se_diff
+# p1 <- 1 - pt(t1, df = length(diffs)-1)
+# 
+# t2 <- (mean_diff - upper) / se_diff
+# p2 <- pt(t2, df = length((diffs)-1))
+# 
+# if(p1 < 0.05 & p2 < 0.05){
+#   print("Equivalent")
+# } else {
+#   print("Not equivalent")
+# }
