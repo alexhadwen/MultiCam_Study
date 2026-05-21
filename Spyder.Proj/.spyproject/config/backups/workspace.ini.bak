@@ -4,7 +4,7 @@ save_data_on_exit = True
 save_history = True
 save_non_project_files = False
 project_type = 'empty-project-type'
-recent_files = ['..\\Python\\ICC_Check']
+recent_files = ['..\\Python\\01_22_2026_ICC_SEM_RAW_ABS_SPM.py']
 
 [main]
 version = 0.2.0
