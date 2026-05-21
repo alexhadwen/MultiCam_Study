@@ -19,7 +19,7 @@ library(patchwork) # combine multiple ggplots together
 # --------------------
 
 # read a tab separated file with no headers
-data_raw <- read_delim("H:/MultiCam/2025-10-07-reboot/04_24_2026/Width_2/Right_Leg.txt", delim = '\t', col_names = FALSE)
+data_raw <- read_delim("H:/MultiCam/2025-10-07-reboot/04_24_2026/Width_3/Right_Leg.txt", delim = '\t', col_names = FALSE)
 
 split_vals <- str_split_fixed(as.character(unlist(data_raw[4, ])), "_", 2) # splitting joint and group into two columns
 
@@ -79,6 +79,61 @@ for (col in 1:ncol(data_clean)) { # loops through the number of columns
 
 data_clean <- rbind(trial_numbers, data_clean) # prepends the trial numbers to the first row
 
+
+########## START OF CHATGPT CODE
+
+# convert to dataframe
+data_clean <- as.data.frame(data_clean)
+
+# metadata rows
+trial_row   <- as.character(unlist(data_clean[1, ]))
+subject_row <- as.character(unlist(data_clean[2, ]))
+joint_row   <- as.character(unlist(data_clean[3, ]))
+group_row   <- as.character(unlist(data_clean[4, ]))
+plane_row   <- as.character(unlist(data_clean[5, ]))
+
+# create grouping key
+avg_key <- paste(subject_row, joint_row, group_row, plane_row, sep = "_")
+unique_keys <- unique(avg_key[-1])  # unique groups, exclude first index column
+
+# initialize output with index column
+averaged_data <- data.frame(Index = data_clean[-(1:5), 1])
+
+# store metadata rows
+meta_trial   <- c(NA)
+meta_subject <- c(NA)
+meta_joint   <- c(NA)
+meta_group   <- c(NA)
+meta_plane   <- c(NA)
+
+# loop through each unique combination
+for (key in unique_keys) {
+  
+  cols <- which(avg_key == key)
+  
+  # average waveform columns
+  avg_vals <- rowMeans(sapply(data_clean[-(1:5), cols], as.numeric), na.rm = TRUE)
+  
+  averaged_data[[key]] <- avg_vals
+  
+  # split metadata back out
+  split_key <- str_split_fixed(key, "_", 4)
+  
+  meta_trial   <- c(meta_trial, 1)
+  meta_subject <- c(meta_subject, split_key[1])
+  meta_joint   <- c(meta_joint, split_key[2])
+  meta_group   <- c(meta_group, split_key[3])
+  meta_plane   <- c(meta_plane, split_key[4])
+}
+
+# prepend metadata rows
+averaged_data <- rbind(meta_trial, meta_subject, meta_joint, meta_group, meta_plane, averaged_data)
+rownames(averaged_data)[1:5] <- c("Trial","Subject","Joint","Group","Plane")
+
+data_clean_mean <- averaged_data
+
+########## END OF CHATGPT CODE
+
 # --------------------
 # Linear mixed effect modelling and bootstrapping
 # --------------------
@@ -104,12 +159,12 @@ for (plane_name in PLANES) {
   
   # ----- Filter this plane ----- #
   mask <- as.vector(
-    data_clean[5, ] == plane_name &
-      data_clean[4, ] %in% c("G1","G2","G3","G4") &
-      data_clean[3, ] %in% c("RKNEE")
+    data_clean_mean[5, ] == plane_name &
+      data_clean_mean[4, ] %in% c("G1","G2","G3","G4") &
+      data_clean_mean[3, ] %in% c("RANK")
   )
   
-  data <- data_clean[, mask] # applying the mask to the dataset
+  data <- data_clean_mean[, mask] # applying the mask to the dataset
   # data <- data[-c(3,5), ]
 
   # Storage for values of length N_TIME
@@ -134,6 +189,8 @@ for (plane_name in PLANES) {
       trial   = as.numeric(unlist(data[row_index, ])) # value at the specific timepoint
     )
     
+    sdev <- sd(df$trial, na.rm = TRUE)
+
     df$subject <- as.factor(as.numeric(factor(df$subject))) # S01 -> 1
     df$camera <- as.factor(as.numeric(factor(df$camera))) # G1 -> 1
     
@@ -143,9 +200,7 @@ for (plane_name in PLANES) {
     # subject is a random effect, stride within subject is random effect
     # REML is for estimating variance components
     # ----- Fit model ----- #
-    model_tp <- lmer(
-      trial ~ camera + (1 | subject) + (1 | subject:stride),
-      data = df, REML = TRUE)
+    model_tp <- lmer(trial ~ camera + (1 | subject), data = df, REML = TRUE)
     
     # ----- ICC/SEM function ----- #
     stats_fun <- function(fit) { # takes the lmer fit, and extracts ICC and SEM
@@ -153,13 +208,10 @@ for (plane_name in PLANES) {
       vc <- as.data.frame(VarCorr(fit)) # all variance components from lmer
       
       var_subject <- vc$vcov[vc$grp == "subject"] # subject variance
-      var_stride  <- vc$vcov[vc$grp == "subject:stride"] # stride variance
       var_error   <- attr(VarCorr(fit), "sc")^2 # square to get residual variance
-      
-      k <- 4 # I assumed an average number of strides of 4, this isn't necessarily correct
-      
-      icc <- var_subject / (var_subject + (var_stride + var_error)/k) # calculating ICC
-      sem <- sqrt((var_stride + var_error)/k) # calculating SEM
+
+      icc <- var_subject / (var_subject + var_error) # calculating ICC
+      sem <- sdev * sqrt(1 - icc)
       
       c(ICC = icc, SEM = sem) # return two total values under 'ICC' and 'SEM'
     }
@@ -174,7 +226,7 @@ for (plane_name in PLANES) {
     boot_results <- bootMer(
       model_tp, # lmer model
       FUN = stats_fun, # get ICC and SEM
-      nsim = 100, # number of simulations
+      nsim = 10, # number of simulations
       type = "parametric", # preserves nesting and variance structure
       use.u = FALSE, # random effects are resimulated each time
       parallel = "multicore", # runs on multiple cores
@@ -186,8 +238,8 @@ for (plane_name in PLANES) {
     icc_ci <- quantile(boot_results$t[,1], probs = c(0.025, 0.975), na.rm = TRUE)
     sem_ci <- quantile(boot_results$t[,2], probs = c(0.025, 0.975), na.rm = TRUE)
 
-    #icc_ci <- c(0, 0.5)
-    #sem_ci <- c(0, 0.1)
+    # icc_ci <- c(0, 0.5)
+    # sem_ci <- c(0, 0.1)
     
     icc_lower[i] <- icc_ci[1] # stores lower
     icc_upper[i] <- icc_ci[2] # stores higher
@@ -224,7 +276,7 @@ for (plane_name in PLANES) {
 # ----- Save Integrated ICC Results ----- #
 
 # write.table(integrated_results,
-#             file = "Output_data/Integrated_Values/Right_Leg/w1_RKNEE_Integrated.txt",
+#             file = "Output_data/Integrated_Values/Right_Leg/ICC_By_Mean/w3_RANK_Integrated.txt",
 #             row.names = FALSE,
 #             col.names = TRUE,
 #             sep = "\t")
@@ -310,9 +362,9 @@ df_long <- data.frame(
   meta[rep(1:nrow(meta), each = nrow(wave_data)), ] # applied the metadata to each point
 )
 
-RKNEE_df <- df_long %>% filter(joint == "RKNEE", group != "G0") # filtering
+RANK_df <- df_long %>% filter(joint == "RANK", group != "G0") # filtering
 
-df_summary <- RKNEE_df %>%
+df_summary <- RANK_df %>%
   group_by(time, joint, plane, group) %>% # grouping by timepoint, joint, plane and camera group
   summarise(mean_value = mean(value, na.rm = TRUE),
     sd_value   = sd(value, na.rm = TRUE), .groups = "drop") %>%
@@ -363,9 +415,10 @@ raw_z <- ggplot(df_summary_z, aes(x = time, y = mean_value, color = group, fill 
 
 # Finished plot
 complete_plot <- (raw_x | raw_y | raw_z ) / (icc_x | icc_y | icc_z) / (sem_x | sem_y | sem_z)
+complete_plot
 
 # Save the plot
-ggsave(filename = "Plots/Right_Leg/W2_RKNEE.png", plot = complete_plot, width = 8, height = 6, dpi = 600)
+ggsave(filename = "Plots/Right_Leg_ICC_By_Mean/W3_RANK.png", plot = complete_plot, width = 8, height = 6, dpi = 600)
 
 # --------------------#
 end_time = Sys.time()
