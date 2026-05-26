@@ -133,6 +133,8 @@ df_summary_z <- df_summary %>% filter(plane == "Z")
 # results_posthoc <- df_summary_time %>% pairwise_t_test(mean_value ~ group, paired = TRUE, p.adjust.method = "bonferroni")
 
 # This code does pointwise independent of each timepoint ANOVA
+library(rstatix)
+
 p_vals <- numeric(101)  # store 0–100
 sig <- logical(101)
 
@@ -156,18 +158,20 @@ ggplot(df_plot, aes(x = time, y = val)) +
   ylim(0, 1)
 
 ########## Equivalence testing
+# 
+# library(TOSTER)
+# group_1 <- df_summary_time[df_summary_time$group == "2.45 m", ]
+# group_4 <- df_summary_time[df_summary_time$group == "3.30 m", ]
+#  
+# mean_g1 <- mean(group_1$mean_value, na.rm = TRUE)
+# mean_g4 <- mean(group_4$mean_value, na.rm = TRUE)
+# sd_g1 <- sd(group_1$mean_value, na.rm = TRUE)
+# sd_g4 <- sd(group_4$mean_value, na.rm = TRUE)
+#  
+# TOSTtwo(m1 = mean_g1, m2 = mean_g4, sd1 = sd_g1, sd2 = sd_g4, n1 = 9, n2 = 9, low_eqbound_d = -0.89, high_eqbound_d = 0.89, alpha = 0.05, var.equal = TRUE)
+# # need to figure out if I can use cohen's d? What all that stuff means
 
-library(TOSTER)
-group_1 <- df_summary_time[df_summary_time$group == "2.45 m", ]
-group_4 <- df_summary_time[df_summary_time$group == "3.30 m", ]
- 
-mean_g1 <- mean(group_1$mean_value, na.rm = TRUE)
-mean_g4 <- mean(group_4$mean_value, na.rm = TRUE)
-sd_g1 <- sd(group_1$mean_value, na.rm = TRUE)
-sd_g4 <- sd(group_4$mean_value, na.rm = TRUE)
- 
-TOSTtwo(m1 = mean_g1, m2 = mean_g4, sd1 = sd_g1, sd2 = sd_g4, n1 = 9, n2 = 9, low_eqbound_d = -0.89, high_eqbound_d = 0.89, alpha = 0.05, var.equal = TRUE)
-# need to figure out if I can use cohen's d? What all that stuff means
+
 # 
 # diffs <- group_1$mean_value - group_4$mean_value
 # 

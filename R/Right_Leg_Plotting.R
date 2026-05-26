@@ -152,6 +152,9 @@ integrated_results <- data.frame(
   stringsAsFactors = FALSE
 )
 
+library(lmerTest)
+library(emmeans)
+
 # looping over the 3 planes
 for (plane_name in PLANES) {
   
@@ -175,6 +178,9 @@ for (plane_name in PLANES) {
   sem_values  <- numeric(N_TIME)
   sem_lower   <- numeric(N_TIME)
   sem_upper   <- numeric(N_TIME)
+  
+  p <- numeric(N_TIME)
+  sig <- logical(N_TIME)
   
   # ----- Time loop ----- #
   for (i in 1:N_TIME) { # each iteration is one timepoint in the waveform
@@ -201,7 +207,15 @@ for (plane_name in PLANES) {
     # REML is for estimating variance components
     # ----- Fit model ----- #
     model_tp <- lmer(trial ~ camera + (1 | subject), data = df, REML = TRUE)
+    tab <- anova(model_tp, type = 2)
+    p[i] <- tab$'Pr(>F)'
     
+    if (p[i] < 0.05) {
+      sig[i] <- TRUE
+    } else {
+      sig[i] <- FALSE
+    }
+
     # ----- ICC/SEM function ----- #
     stats_fun <- function(fit) { # takes the lmer fit, and extracts ICC and SEM
       
@@ -222,29 +236,67 @@ for (plane_name in PLANES) {
     icc_values[i] <- results["ICC"]
     sem_values[i] <- results["SEM"]
     
-    ## ----- Bootstrapping ----- #
-    boot_results <- bootMer(
-      model_tp, # lmer model
-      FUN = stats_fun, # get ICC and SEM
-      nsim = 10, # number of simulations
-      type = "parametric", # preserves nesting and variance structure
-      use.u = FALSE, # random effects are resimulated each time
-      parallel = "multicore", # runs on multiple cores
-      ncpus = 4 # number of cores
-    )
+    # ## ----- Bootstrapping ----- #
+    # boot_results <- bootMer(
+    #   model_tp, # lmer model
+    #   FUN = stats_fun, # get ICC and SEM
+    #   nsim = 10, # number of simulations
+    #   type = "parametric", # preserves nesting and variance structure
+    #   use.u = FALSE, # random effects are resimulated each time
+    #   parallel = "multicore", # runs on multiple cores
+    #   ncpus = 4 # number of cores
+    # )
+    # 
+    # # ----- CI ----- #
+    # # 95% confidence intervals, removes NA if did not converge
+    # icc_ci <- quantile(boot_results$t[,1], probs = c(0.025, 0.975), na.rm = TRUE)
+    # sem_ci <- quantile(boot_results$t[,2], probs = c(0.025, 0.975), na.rm = TRUE)
 
-    # ----- CI ----- #
-    # 95% confidence intervals, removes NA if did not converge
-    icc_ci <- quantile(boot_results$t[,1], probs = c(0.025, 0.975), na.rm = TRUE)
-    sem_ci <- quantile(boot_results$t[,2], probs = c(0.025, 0.975), na.rm = TRUE)
-
-    # icc_ci <- c(0, 0.5)
-    # sem_ci <- c(0, 0.1)
+    icc_ci <- c(0, 0.5)
+    sem_ci <- c(0, 0.1)
     
     icc_lower[i] <- icc_ci[1] # stores lower
     icc_upper[i] <- icc_ci[2] # stores higher
     sem_lower[i] <- sem_ci[1]
     sem_upper[i] <- sem_ci[2]
+    
+    ##########
+    # extracting emmeans pairwise
+    if (plane_name == "X" && any(data[3, ] == "RANK") && i == 93) {
+      pairwise_rank_x_92 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
+      pairwise_rank_x_92 <- as.data.frame(pairwise_rank_x_92$contrasts)
+      write.table(pairwise_rank_x_92, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rank_x_92.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+    }
+    if (plane_name == "Y" && any(data[3, ] == "RANK") && i == 39) {
+      pairwise_rank_y_38 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
+      pairwise_rank_y_38 <- as.data.frame(pairwise_rank_y_38$contrasts)
+      write.table(pairwise_rank_y_38, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rank_y_38.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+    }
+    if (plane_name == "Z" && any(data[3, ] == "RHIP") && i == 52) {
+      pairwise_rhip_z_51 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
+      pairwise_rhip_z_51 <- as.data.frame(pairwise_rhip_z_51$contrasts)
+      write.table(pairwise_rhip_z_51, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rhip_z_51.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+    }
+    if (plane_name == "X" && any(data[3, ] == "RPV") && i == 46) {
+      pairwise_rpv_x_45 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
+      pairwise_rpv_x_45 <- as.data.frame(pairwise_rpv_x_45$contrasts)
+      write.table(pairwise_rpv_x_45, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rpv_x_45.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+    }
+    if (plane_name == "X" && any(data[3, ] == "RKNEE") && i == 17) {
+      pairwise_rknee_x_16 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
+      pairwise_rknee_x_16 <- as.data.frame(pairwise_rknee_x_16$contrasts)
+      write.table(pairwise_rknee_x_16, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rknee_x_16.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+    }
+    if (plane_name == "X" && any(data[3, ] == "RKNEE") && i == 76) {
+      pairwise_rknee_x_75 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
+      pairwise_rknee_x_75 <- as.data.frame(pairwise_rknee_x_75$contrasts)
+      write.table(pairwise_rknee_x_75, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rknee_x_75.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+    }
+    if (plane_name == "X" && any(data[3, ] == "RHIP") && i == 54) {
+      pairwise_rhip_x_53 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
+      pairwise_rhip_x_53 <- as.data.frame(pairwise_rhip_x_53$contrasts)
+      write.table(pairwise_rhip_x_53, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rhip_x_53.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+    }
   }
   
   # ----- Integrated ICC ----- #
@@ -269,14 +321,16 @@ for (plane_name in PLANES) {
     icc_upper = icc_upper,
     sem = sem_values,
     sem_lower = sem_lower,
-    sem_upper = sem_upper
+    sem_upper = sem_upper,
+    p = p,
+    sig = sig
   )
 }
 
 # ----- Save Integrated ICC Results ----- #
 
 # write.table(integrated_results,
-#             file = "Output_data/Integrated_Values/Right_Leg/ICC_By_Mean/w3_RANK_Integrated.txt",
+#             file = "Output_data/Integrated_Values/Right_Leg/ICC_By_Mean/w3_RKNEE_Integrated.txt",
 #             row.names = FALSE,
 #             col.names = TRUE,
 #             sep = "\t")
@@ -293,7 +347,7 @@ icc_x <- ggplot(stats_x, aes(x = x, y = icc)) +
   coord_cartesian(ylim = c(0,1)) +
   labs(x = NULL, y = "Pointwise ICC (3,k)") +
   theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.title.y = element_text(size = 8))
 
 
@@ -318,8 +372,8 @@ sem_x <- ggplot(stats_x, aes(x = x, y = sem)) +
   geom_ribbon(aes(ymin = sem_lower, ymax = sem_upper), fill = "blue", alpha = 0.25) +
   geom_line(color = "blue", linewidth = 0.6) +
   labs(x = "Gait Cycle (%)", y = "Pointwise SEM (°)") +
-  theme_bw() + 
-  theme(axis.title.y = element_text(size = 8)) + 
+  theme_bw() +
+  theme(axis.title.y = element_text(size = 8)) +
   theme(axis.title.x = element_text(size = 8)) +
   ylim(0,2)
 
@@ -327,7 +381,7 @@ sem_y <- ggplot(stats_y, aes(x = x, y = sem)) +
   geom_ribbon(aes(ymin = sem_lower, ymax = sem_upper), fill = "blue", alpha = 0.25) +
   geom_line(color = "blue", linewidth = 0.6) +
   labs(x = "Gait Cycle (%)", y = NULL) +
-  theme_bw() + 
+  theme_bw() +
   theme(axis.title.x = element_text(size = 8)) +
   ylim(0,2)
 
@@ -335,7 +389,7 @@ sem_z <- ggplot(stats_z, aes(x = x, y = sem)) +
   geom_ribbon(aes(ymin = sem_lower, ymax = sem_upper), fill = "blue", alpha = 0.25) +
   geom_line(color = "blue", linewidth = 0.6) +
   labs(x = "Gait Cycle (%)", y = NULL) +
-  theme_bw() + 
+  theme_bw() +
   theme(axis.title.x = element_text(size = 8)) +
   ylim(0,2)
 
@@ -362,9 +416,9 @@ df_long <- data.frame(
   meta[rep(1:nrow(meta), each = nrow(wave_data)), ] # applied the metadata to each point
 )
 
-RANK_df <- df_long %>% filter(joint == "RANK", group != "G0") # filtering
+RKNEE_df <- df_long %>% filter(joint == "RKNEE", group != "G0") # filtering
 
-df_summary <- RANK_df %>%
+df_summary <- RKNEE_df %>%
   group_by(time, joint, plane, group) %>% # grouping by timepoint, joint, plane and camera group
   summarise(mean_value = mean(value, na.rm = TRUE),
     sd_value   = sd(value, na.rm = TRUE), .groups = "drop") %>%
@@ -413,12 +467,71 @@ raw_z <- ggplot(df_summary_z, aes(x = time, y = mean_value, color = group, fill 
   theme(legend.position = "none") +
   theme(plot.title = element_text(hjust = 0.5, size = 10))
 
+##############################
+
+sig_df_x <- data.frame(
+  time = stats_x$x,
+  sig  = stats_x$sig
+)
+sig_df_y <- data.frame(
+  time = stats_y$x,
+  sig  = stats_y$sig
+)
+sig_df_z <- data.frame(
+  time = stats_z$x,
+  sig  = stats_z$sig
+)
+
+plot_x <- raw_x +
+  geom_rect(
+    data = subset(sig_df_x, sig == TRUE),
+    aes(
+      xmin = time - 0.5,
+      xmax = time + 0.5,
+      ymin = -Inf,
+      ymax = Inf
+    ),
+    inherit.aes = FALSE,
+    fill = "red",
+    alpha = 0.15
+  )
+
+plot_y <- raw_y +
+  geom_rect(
+    data = subset(sig_df_y, sig == TRUE),
+    aes(
+      xmin = time - 0.5,
+      xmax = time + 0.5,
+      ymin = -Inf,
+      ymax = Inf
+    ),
+    inherit.aes = FALSE,
+    fill = "red",
+    alpha = 0.15
+  )
+
+plot_z <- raw_z +
+  geom_rect(
+    data = subset(sig_df_z, sig == TRUE),
+    aes(
+      xmin = time - 0.5,
+      xmax = time + 0.5,
+      ymin = -Inf,
+      ymax = Inf
+    ),
+    inherit.aes = FALSE,
+    fill = "red",
+    alpha = 0.15
+  )
+
+###################
+
 # Finished plot
-complete_plot <- (raw_x | raw_y | raw_z ) / (icc_x | icc_y | icc_z) / (sem_x | sem_y | sem_z)
+complete_plot <- (plot_x | plot_y | plot_z ) / (icc_x | icc_y | icc_z) / (sem_x | sem_y | sem_z)
 complete_plot
 
 # Save the plot
-ggsave(filename = "Plots/Right_Leg_ICC_By_Mean/W3_RANK.png", plot = complete_plot, width = 8, height = 6, dpi = 600)
+#ggsave(filename = "Plots/Right_Leg_ICC_By_Mean/W3_RKNEE.png", plot = complete_plot, width = 8, height = 6, dpi = 600)
 
 # --------------------#
 end_time = Sys.time()

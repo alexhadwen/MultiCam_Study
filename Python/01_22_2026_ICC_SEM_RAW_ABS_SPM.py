@@ -24,7 +24,8 @@ N_TIME = 101
 START_ROW = 4
 
 GROUPS = ["G1", "G2", "G3", "G4"]
-JOINTS = ["LPV", "LHIP", "LKNEE", "LANK"]
+# JOINTS = ["LPV", "LHIP", "LKNEE", "LANK"] # for the left leg
+JOINTS = ["RPV", "RHIP", "RKNEE", "RANK"]
 PLANES = ["X", "Y", "Z"]
 
 # --------------------
@@ -359,7 +360,8 @@ def plot_spm_rmanova(data, joints=JOINTS, planes=PLANES, groups=GROUPS, start_ro
 # Body of code
 # --------------------
 
-data_clean = load_and_clean_sift_data(r"H:\MultiCam\2025-10-07-reboot\11_28_2025\Width_1\Left_Leg.txt")
+#data_clean = load_and_clean_sift_data(r"H:\MultiCam\2025-10-07-reboot\11_28_2025\Width_1\Left_Leg.txt") # for the left leg
+data_clean = load_and_clean_sift_data(r"H:\MultiCam\2025-10-07-reboot\04_24_2026\Width_1\Right_Leg.txt")
 
 #plot_raw_waveforms(data_clean)
 
