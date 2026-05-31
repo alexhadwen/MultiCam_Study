@@ -19,7 +19,7 @@ library(patchwork) # combine multiple ggplots together
 # --------------------
 
 # read a tab separated file with no headers
-data_raw <- read_delim("H:/MultiCam/2025-10-07-reboot/04_24_2026/Width_3/Right_Leg.txt", delim = '\t', col_names = FALSE)
+data_raw <- read_delim("H:/MultiCam/2025-10-07-reboot/04_24_2026/Width_1/Right_Leg.txt", delim = '\t', col_names = FALSE)
 
 split_vals <- str_split_fixed(as.character(unlist(data_raw[4, ])), "_", 2) # splitting joint and group into two columns
 
@@ -236,24 +236,24 @@ for (plane_name in PLANES) {
     icc_values[i] <- results["ICC"]
     sem_values[i] <- results["SEM"]
     
-    # ## ----- Bootstrapping ----- #
-    # boot_results <- bootMer(
-    #   model_tp, # lmer model
-    #   FUN = stats_fun, # get ICC and SEM
-    #   nsim = 10, # number of simulations
-    #   type = "parametric", # preserves nesting and variance structure
-    #   use.u = FALSE, # random effects are resimulated each time
-    #   parallel = "multicore", # runs on multiple cores
-    #   ncpus = 4 # number of cores
-    # )
-    # 
-    # # ----- CI ----- #
-    # # 95% confidence intervals, removes NA if did not converge
-    # icc_ci <- quantile(boot_results$t[,1], probs = c(0.025, 0.975), na.rm = TRUE)
-    # sem_ci <- quantile(boot_results$t[,2], probs = c(0.025, 0.975), na.rm = TRUE)
+    ## ----- Bootstrapping ----- #
+    boot_results <- bootMer(
+      model_tp, # lmer model
+      FUN = stats_fun, # get ICC and SEM
+      nsim = 100, # number of simulations
+      type = "parametric", # preserves nesting and variance structure
+      use.u = FALSE, # random effects are resimulated each time
+      parallel = "multicore", # runs on multiple cores
+      ncpus = 4 # number of cores
+    )
 
-    icc_ci <- c(0, 0.5)
-    sem_ci <- c(0, 0.1)
+    # ----- CI ----- #
+    # 95% confidence intervals, removes NA if did not converge
+    icc_ci <- quantile(boot_results$t[,1], probs = c(0.025, 0.975), na.rm = TRUE)
+    sem_ci <- quantile(boot_results$t[,2], probs = c(0.025, 0.975), na.rm = TRUE)
+
+    # icc_ci <- c(0, 0.5)
+    # sem_ci <- c(0, 0.1)
     
     icc_lower[i] <- icc_ci[1] # stores lower
     icc_upper[i] <- icc_ci[2] # stores higher
@@ -330,7 +330,7 @@ for (plane_name in PLANES) {
 # ----- Save Integrated ICC Results ----- #
 
 # write.table(integrated_results,
-#             file = "Output_data/Integrated_Values/Right_Leg/ICC_By_Mean/w3_RKNEE_Integrated.txt",
+#             file = "Output_data/Integrated_Values/Right_Leg/ICC_By_Mean/w1_RANK_Integrated.txt",
 #             row.names = FALSE,
 #             col.names = TRUE,
 #             sep = "\t")
@@ -416,9 +416,9 @@ df_long <- data.frame(
   meta[rep(1:nrow(meta), each = nrow(wave_data)), ] # applied the metadata to each point
 )
 
-RKNEE_df <- df_long %>% filter(joint == "RKNEE", group != "G0") # filtering
+RANK_df <- df_long %>% filter(joint == "RANK", group != "G0") # filtering
 
-df_summary <- RKNEE_df %>%
+df_summary <- RANK_df %>%
   group_by(time, joint, plane, group) %>% # grouping by timepoint, joint, plane and camera group
   summarise(mean_value = mean(value, na.rm = TRUE),
     sd_value   = sd(value, na.rm = TRUE), .groups = "drop") %>%
@@ -531,7 +531,7 @@ complete_plot <- (plot_x | plot_y | plot_z ) / (icc_x | icc_y | icc_z) / (sem_x 
 complete_plot
 
 # Save the plot
-#ggsave(filename = "Plots/Right_Leg_ICC_By_Mean/W3_RKNEE.png", plot = complete_plot, width = 8, height = 6, dpi = 600)
+ggsave(filename = "Plots/Right_Leg_ICC_By_Mean_With_Significance/W1_RANK.png", plot = complete_plot, width = 8, height = 6, dpi = 600)
 
 # --------------------#
 end_time = Sys.time()
