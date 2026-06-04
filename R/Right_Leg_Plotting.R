@@ -240,7 +240,7 @@ for (plane_name in PLANES) {
     boot_results <- bootMer(
       model_tp, # lmer model
       FUN = stats_fun, # get ICC and SEM
-      nsim = 100, # number of simulations
+      nsim = 10, # number of simulations
       type = "parametric", # preserves nesting and variance structure
       use.u = FALSE, # random effects are resimulated each time
       parallel = "multicore", # runs on multiple cores
@@ -260,43 +260,43 @@ for (plane_name in PLANES) {
     sem_lower[i] <- sem_ci[1]
     sem_upper[i] <- sem_ci[2]
     
-    ##########
-    # extracting emmeans pairwise
-    if (plane_name == "X" && any(data[3, ] == "RANK") && i == 93) {
-      pairwise_rank_x_92 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
-      pairwise_rank_x_92 <- as.data.frame(pairwise_rank_x_92$contrasts)
-      write.table(pairwise_rank_x_92, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rank_x_92.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-    }
-    if (plane_name == "Y" && any(data[3, ] == "RANK") && i == 39) {
-      pairwise_rank_y_38 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
-      pairwise_rank_y_38 <- as.data.frame(pairwise_rank_y_38$contrasts)
-      write.table(pairwise_rank_y_38, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rank_y_38.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-    }
-    if (plane_name == "Z" && any(data[3, ] == "RHIP") && i == 52) {
-      pairwise_rhip_z_51 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
-      pairwise_rhip_z_51 <- as.data.frame(pairwise_rhip_z_51$contrasts)
-      write.table(pairwise_rhip_z_51, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rhip_z_51.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-    }
-    if (plane_name == "X" && any(data[3, ] == "RPV") && i == 46) {
-      pairwise_rpv_x_45 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
-      pairwise_rpv_x_45 <- as.data.frame(pairwise_rpv_x_45$contrasts)
-      write.table(pairwise_rpv_x_45, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rpv_x_45.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-    }
-    if (plane_name == "X" && any(data[3, ] == "RKNEE") && i == 17) {
-      pairwise_rknee_x_16 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
-      pairwise_rknee_x_16 <- as.data.frame(pairwise_rknee_x_16$contrasts)
-      write.table(pairwise_rknee_x_16, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rknee_x_16.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-    }
-    if (plane_name == "X" && any(data[3, ] == "RKNEE") && i == 76) {
-      pairwise_rknee_x_75 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
-      pairwise_rknee_x_75 <- as.data.frame(pairwise_rknee_x_75$contrasts)
-      write.table(pairwise_rknee_x_75, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rknee_x_75.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-    }
-    if (plane_name == "X" && any(data[3, ] == "RHIP") && i == 54) {
-      pairwise_rhip_x_53 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
-      pairwise_rhip_x_53 <- as.data.frame(pairwise_rhip_x_53$contrasts)
-      write.table(pairwise_rhip_x_53, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rhip_x_53.txt", sep = "\t", row.names = FALSE, quote = FALSE)
-    }
+    # ##########
+    # # extracting emmeans pairwise
+    # if (plane_name == "X" && any(data[3, ] == "RANK") && i == 93) {
+    #   pairwise_rank_x_92 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
+    #   pairwise_rank_x_92 <- as.data.frame(pairwise_rank_x_92$contrasts)
+    #   write.table(pairwise_rank_x_92, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rank_x_92.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+    # }
+    # if (plane_name == "Y" && any(data[3, ] == "RANK") && i == 39) {
+    #   pairwise_rank_y_38 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
+    #   pairwise_rank_y_38 <- as.data.frame(pairwise_rank_y_38$contrasts)
+    #   write.table(pairwise_rank_y_38, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rank_y_38.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+    # }
+    # if (plane_name == "Z" && any(data[3, ] == "RHIP") && i == 52) {
+    #   pairwise_rhip_z_51 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
+    #   pairwise_rhip_z_51 <- as.data.frame(pairwise_rhip_z_51$contrasts)
+    #   write.table(pairwise_rhip_z_51, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rhip_z_51.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+    # }
+    # if (plane_name == "X" && any(data[3, ] == "RPV") && i == 46) {
+    #   pairwise_rpv_x_45 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
+    #   pairwise_rpv_x_45 <- as.data.frame(pairwise_rpv_x_45$contrasts)
+    #   write.table(pairwise_rpv_x_45, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rpv_x_45.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+    # }
+    # if (plane_name == "X" && any(data[3, ] == "RKNEE") && i == 17) {
+    #   pairwise_rknee_x_16 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
+    #   pairwise_rknee_x_16 <- as.data.frame(pairwise_rknee_x_16$contrasts)
+    #   write.table(pairwise_rknee_x_16, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rknee_x_16.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+    # }
+    # if (plane_name == "X" && any(data[3, ] == "RKNEE") && i == 76) {
+    #   pairwise_rknee_x_75 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
+    #   pairwise_rknee_x_75 <- as.data.frame(pairwise_rknee_x_75$contrasts)
+    #   write.table(pairwise_rknee_x_75, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rknee_x_75.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+    # }
+    # if (plane_name == "X" && any(data[3, ] == "RHIP") && i == 54) {
+    #   pairwise_rhip_x_53 <- emmeans(model_tp, pairwise ~ camera, adjust = "bonferroni")
+    #   pairwise_rhip_x_53 <- as.data.frame(pairwise_rhip_x_53$contrasts)
+    #   write.table(pairwise_rhip_x_53, file = "Output_Data/Pairwise_Values/Width_3/pairwise_rhip_x_53.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+    # }
   }
   
   # ----- Integrated ICC ----- #
@@ -342,56 +342,85 @@ stats_y <- all_results[["Y"]]
 stats_z <- all_results[["Z"]]
 
 icc_x <- ggplot(stats_x, aes(x = x, y = icc)) +
-  geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper), fill = "orange", alpha = 0.25) +
+  geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper), fill = "orange", alpha = 0.20) +
   geom_line(color = "orange", linewidth = 0.6) +
   coord_cartesian(ylim = c(0,1)) +
-  labs(x = NULL, y = "Pointwise ICC (3,k)") +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
+  scale_y_continuous(breaks = seq(0, 1, by = 0.2), labels = c("0", "0.2", "0.4", "0.6", "0.8", "1"), expand = c(0, 0)) +  labs(x = NULL, y = NULL) +
+  labs(x = NULL, y = "ICC (3,1)") +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.title.y = element_text(size = 8))
-
+  theme(axis.title.y = element_text(size = 8)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 icc_y <- ggplot(stats_y, aes(x = x, y = icc)) +
-  geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper), fill = "orange", alpha = 0.25) +
+  geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper), fill = "orange", alpha = 0.20) +
   geom_line(color = "orange", linewidth = 0.6) +
   coord_cartesian(ylim = c(0,1)) +
-  labs(x = NULL, y = NULL) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
+  scale_y_continuous(breaks = seq(0, 1, by = 0.2), labels = c("0", "0.2", "0.4", "0.6", "0.8", "1"), expand = c(0, 0)) +  labs(x = NULL, y = NULL) +
   theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5))
-
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 icc_z <- ggplot(stats_z, aes(x = x, y = icc)) +
-  geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper), fill = "orange", alpha = 0.25) +
+  geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper), fill = "orange", alpha = 0.20) +
   geom_line(color = "orange", linewidth = 0.6) +
   coord_cartesian(ylim = c(0,1)) +
-  labs(x = NULL, y = NULL) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
+  scale_y_continuous(breaks = seq(0, 1, by = 0.2), labels = c("0", "0.2", "0.4", "0.6", "0.8", "1"), expand = c(0, 0)) +  labs(x = NULL, y = NULL) +
   theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 sem_x <- ggplot(stats_x, aes(x = x, y = sem)) +
-  geom_ribbon(aes(ymin = sem_lower, ymax = sem_upper), fill = "blue", alpha = 0.25) +
+  geom_ribbon(aes(ymin = sem_lower, ymax = sem_upper), fill = "blue", alpha = 0.20) +
   geom_line(color = "blue", linewidth = 0.6) +
-  labs(x = "Gait Cycle (%)", y = "Pointwise SEM (°)") +
+  coord_cartesian(ylim = c(0, 3)) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
+  scale_y_continuous(breaks = seq(0, 3, by = 1), labels = c("0", "1.0", "2.0", "3.0"),expand = c(0, 0)) +
+  labs(x = "Gait Cycle (%)", y = "SEM (°)") +
   theme_bw() +
   theme(axis.title.y = element_text(size = 8)) +
   theme(axis.title.x = element_text(size = 8)) +
-  ylim(0,2)
+  theme(
+    panel.grid.major.x = element_blank(),  # remove vertical gridlines
+    panel.grid.minor.x = element_blank(),  # remove minor vertical gridlines
+    panel.grid.minor.y = element_blank(),  # remove minor horizontal gridlines
+    panel.grid.major.y = element_line(color = "grey85", linewidth = 0.4)
+  )
 
 sem_y <- ggplot(stats_y, aes(x = x, y = sem)) +
-  geom_ribbon(aes(ymin = sem_lower, ymax = sem_upper), fill = "blue", alpha = 0.25) +
+  geom_ribbon(aes(ymin = sem_lower, ymax = sem_upper), fill = "blue", alpha = 0.20) +
   geom_line(color = "blue", linewidth = 0.6) +
+  coord_cartesian(ylim = c(0, 3)) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
+  scale_y_continuous(breaks = seq(0, 3, by = 1), labels = c("0", "1.0", "2.0", "3.0"),expand = c(0, 0)) +
   labs(x = "Gait Cycle (%)", y = NULL) +
   theme_bw() +
   theme(axis.title.x = element_text(size = 8)) +
-  ylim(0,2)
+  theme(
+    panel.grid.major.x = element_blank(),  # remove vertical gridlines
+    panel.grid.minor.x = element_blank(),  # remove minor vertical gridlines
+    panel.grid.minor.y = element_blank(),  # remove minor horizontal gridlines
+    panel.grid.major.y = element_line(color = "grey85", linewidth = 0.4)
+  )
 
 sem_z <- ggplot(stats_z, aes(x = x, y = sem)) +
-  geom_ribbon(aes(ymin = sem_lower, ymax = sem_upper), fill = "blue", alpha = 0.25) +
+  geom_ribbon(aes(ymin = sem_lower, ymax = sem_upper), fill = "blue", alpha = 0.20) +
   geom_line(color = "blue", linewidth = 0.6) +
+  coord_cartesian(ylim = c(0, 3)) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
+  scale_y_continuous(breaks = seq(0, 3, by = 1), labels = c("0", "1.0", "2.0", "3.0"),expand = c(0, 0)) +
   labs(x = "Gait Cycle (%)", y = NULL) +
   theme_bw() +
   theme(axis.title.x = element_text(size = 8)) +
-  ylim(0,2)
+  theme(
+    panel.grid.major.x = element_blank(),  # remove vertical gridlines
+    panel.grid.minor.x = element_blank(),  # remove minor vertical gridlines
+    panel.grid.minor.y = element_blank(),  # remove minor horizontal gridlines
+    panel.grid.major.y = element_line(color = "grey85", linewidth = 0.4)
+  )
 
 # ----- Raw Data Plotting Setup ----- #
 # changing this to column wise from row wise
@@ -437,37 +466,16 @@ df_summary_y <- df_summary %>% filter(plane == "Y")
 df_summary_z <- df_summary %>% filter(plane == "Z")
 
 # ----- Raw data plotting ----- #
-raw_x <- ggplot(df_summary_x, aes(x = time, y = mean_value, color = group, fill = group)) +
-  geom_ribbon(aes(ymin = sd_lower, ymax = sd_upper), alpha = 0.25, color = NA) +
-  geom_line(linewidth = 0.6) +
-  labs(title = "Saggital Plane (flex(+)/ext(-))", x = NULL, y = "Angle (°)") +
-  theme_bw() +
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 10),
-    legend.background = element_rect(fill = "white", color = "black"),
-    legend.position = c(0.83, 0.25),
-    legend.title = element_blank(),
-    legend.text = element_text(size = 8),
-    legend.key.size = unit(0.3, "cm")) +
-  theme(axis.title.y = element_text(size = 8))
+group_colours <- c("0.85 m" = "#56B4E9",  # Blue
+                   "1.65 m" = "#E69F00",  # Orange
+                   "2.45 m" = "#009E73",  # Bluish Green
+                   "3.30 m" = "#D55E00"   # Vermillion
+)
 
-raw_y <- ggplot(df_summary_y, aes(x = time, y = mean_value, color = group, fill = group)) +
-  geom_ribbon(aes(ymin = sd_lower, ymax = sd_upper), alpha = 0.25, color = NA) +
-  geom_line(linewidth = 0.6) +
-  labs(title = "Frontal Plane (abd(+)/(add(-))", x = NULL, y = NULL) +
-  theme_bw() +
-  theme(legend.position = "none") +
-  theme(plot.title = element_text(hjust = 0.5, size = 10))
-
-raw_z <- ggplot(df_summary_z, aes(x = time, y = mean_value, color = group, fill = group)) +
-  geom_ribbon(aes(ymin = sd_lower, ymax = sd_upper), alpha = 0.25, color = NA) +
-  geom_line(linewidth = 0.6) +
-  labs(title = "Transverse Plane (int(+)/(ext(-))", x = NULL, y = NULL) +
-  theme_bw() +
-  theme(legend.position = "none") +
-  theme(plot.title = element_text(hjust = 0.5, size = 10))
-
-##############################
+group_scales <- list(
+  scale_color_manual(values = group_colours),
+  scale_fill_manual(values = group_colours)
+)
 
 sig_df_x <- data.frame(
   time = stats_x$x,
@@ -482,56 +490,55 @@ sig_df_z <- data.frame(
   sig  = stats_z$sig
 )
 
-plot_x <- raw_x +
-  geom_rect(
-    data = subset(sig_df_x, sig == TRUE),
-    aes(
-      xmin = time - 0.5,
-      xmax = time + 0.5,
-      ymin = -Inf,
-      ymax = Inf
-    ),
-    inherit.aes = FALSE,
-    fill = "red",
-    alpha = 0.15
-  )
+raw_x <- ggplot(df_summary_x, aes(x = time, y = mean_value, color = group, fill = group)) +
+  geom_rect(data = subset(sig_df_x, sig == TRUE), aes(xmin = time - 0.5, xmax = time + 0.5, ymin = -Inf, ymax = Inf), inherit.aes = FALSE, fill = "#D9D9D9", alpha = 0.5) +
+  geom_ribbon(aes(ymin = sd_lower, ymax = sd_upper), alpha = 0.25, color = NA) +
+  geom_line(linewidth = 0.6) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
+  labs(title = "Saggital Plane (flex(+)/ext(-))", x = NULL, y = "Angle (°)") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 8),
+    legend.background = element_rect(fill = "white", color = "black"),
+    legend.position = c(0.83, 0.25),
+    legend.title = element_blank(),
+    legend.text = element_text(size = 8),
+    legend.key.size = unit(0.3, "cm")) +
+  theme(axis.title.y = element_text(size = 8)) +
+  group_scales +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
-plot_y <- raw_y +
-  geom_rect(
-    data = subset(sig_df_y, sig == TRUE),
-    aes(
-      xmin = time - 0.5,
-      xmax = time + 0.5,
-      ymin = -Inf,
-      ymax = Inf
-    ),
-    inherit.aes = FALSE,
-    fill = "red",
-    alpha = 0.15
-  )
+raw_y <- ggplot(df_summary_y, aes(x = time, y = mean_value, color = group, fill = group)) +
+  geom_rect(data = subset(sig_df_y, sig == TRUE), aes(xmin = time - 0.5, xmax = time + 0.5, ymin = -Inf, ymax = Inf), inherit.aes = FALSE, fill = "#D9D9D9", alpha = 0.5) +
+  geom_ribbon(aes(ymin = sd_lower, ymax = sd_upper), alpha = 0.20, color = NA) +
+  geom_line(linewidth = 0.6) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
+  labs(title = "Frontal Plane (abd(+)/(add(-))", x = NULL, y = NULL) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(plot.title = element_text(hjust = 0.5, size = 8)) +
+  group_scales +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
-plot_z <- raw_z +
-  geom_rect(
-    data = subset(sig_df_z, sig == TRUE),
-    aes(
-      xmin = time - 0.5,
-      xmax = time + 0.5,
-      ymin = -Inf,
-      ymax = Inf
-    ),
-    inherit.aes = FALSE,
-    fill = "red",
-    alpha = 0.15
-  )
+raw_z <- ggplot(df_summary_z, aes(x = time, y = mean_value, color = group, fill = group)) +
+  geom_rect(data = subset(sig_df_z, sig == TRUE), aes(xmin = time - 0.5, xmax = time + 0.5, ymin = -Inf, ymax = Inf), inherit.aes = FALSE, fill = "#D9D9D9", alpha = 0.5) +
+  geom_ribbon(aes(ymin = sd_lower, ymax = sd_upper), alpha = 0.25, color = NA) +
+  geom_line(linewidth = 0.6) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
+  labs(title = "Transverse Plane (int(+)/(ext(-))", x = NULL, y = NULL) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  theme(plot.title = element_text(hjust = 0.5, size = 8)) +
+  group_scales +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
-###################
 
 # Finished plot
-complete_plot <- (plot_x | plot_y | plot_z ) / (icc_x | icc_y | icc_z) / (sem_x | sem_y | sem_z)
+complete_plot <- (raw_x | raw_y | raw_z ) / (icc_x | icc_y | icc_z) / (sem_x | sem_y | sem_z)
 complete_plot
 
 # Save the plot
-ggsave(filename = "Plots/Right_Leg_ICC_By_Mean_With_Significance/W1_RANK.png", plot = complete_plot, width = 8, height = 6, dpi = 600)
+ggsave(filename = "Plots/Right_Leg_ICC_By_Mean_With_Significance/W1_RANK_test.png", plot = complete_plot, width = 8, height = 6, dpi = 600)
 
 # --------------------#
 end_time = Sys.time()
