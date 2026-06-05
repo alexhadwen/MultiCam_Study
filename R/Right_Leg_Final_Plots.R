@@ -341,17 +341,17 @@ stats_x <- all_results[["X"]]
 stats_y <- all_results[["Y"]]
 stats_z <- all_results[["Z"]]
 
-icc_x <- ggplot(stats_x, aes(x = x, y = icc)) +
-  geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper), fill = "orange", alpha = 0.20) +
-  geom_line(color = "orange", linewidth = 0.6) +
-  coord_cartesian(ylim = c(0,1)) +
-  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
-  scale_y_continuous(breaks = seq(0, 1, by = 0.2), labels = c("0", "0.2", "0.4", "0.6", "0.8", "1"), expand = c(0, 0)) +  labs(x = NULL, y = NULL) +
-  labs(x = NULL, y = "ICC (3,1)") +
-  theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.title.y = element_text(size = 8)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+# icc_x <- ggplot(stats_x, aes(x = x, y = icc)) +
+#   geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper), fill = "orange", alpha = 0.20) +
+#   geom_line(color = "orange", linewidth = 0.6) +
+#   coord_cartesian(ylim = c(0,1)) +
+#   scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
+#   scale_y_continuous(breaks = seq(0, 1, by = 0.2), labels = c("0", "0.2", "0.4", "0.6", "0.8", "1"), expand = c(0, 0)) +  labs(x = NULL, y = NULL) +
+#   labs(x = NULL, y = "ICC (3,1)") +
+#   theme_bw() +
+#   theme(plot.title = element_text(hjust = 0.5)) +
+#   theme(axis.title.y = element_text(size = 8)) +
+#   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 
 # ###########################################
@@ -535,22 +535,22 @@ icc_z <- ggplot(stats_z, aes(x = x, y = icc)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
-sem_x <- ggplot(stats_x, aes(x = x, y = sem)) +
-  geom_ribbon(aes(ymin = sem_lower, ymax = sem_upper), fill = "blue", alpha = 0.20) +
-  geom_line(color = "blue", linewidth = 0.6) +
-  coord_cartesian(ylim = c(0, 3)) +
-  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
-  scale_y_continuous(breaks = seq(0, 3, by = 1), labels = c("0", "1.0", "2.0", "3.0"),expand = c(0, 0)) +
-  labs(x = "Gait Cycle (%)", y = "SEM (°)") +
-  theme_bw() +
-  theme(axis.title.y = element_text(size = 8)) +
-  theme(axis.title.x = element_text(size = 8)) +
-  theme(
-    panel.grid.major.x = element_blank(),  # remove vertical gridlines
-    panel.grid.minor.x = element_blank(),  # remove minor vertical gridlines
-    panel.grid.minor.y = element_blank(),  # remove minor horizontal gridlines
-    panel.grid.major.y = element_line(color = "grey85", linewidth = 0.4)
-  )
+# sem_x <- ggplot(stats_x, aes(x = x, y = sem)) +
+#   geom_ribbon(aes(ymin = sem_lower, ymax = sem_upper), fill = "blue", alpha = 0.20) +
+#   geom_line(color = "blue", linewidth = 0.6) +
+#   coord_cartesian(ylim = c(0, 3)) +
+#   scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
+#   scale_y_continuous(breaks = seq(0, 3, by = 1), labels = c("0", "1.0", "2.0", "3.0"),expand = c(0, 0)) +
+#   labs(x = "Gait Cycle (%)", y = "SEM (°)") +
+#   theme_bw() +
+#   theme(axis.title.y = element_text(size = 8)) +
+#   theme(axis.title.x = element_text(size = 8)) +
+#   theme(
+#     panel.grid.major.x = element_blank(),  # remove vertical gridlines
+#     panel.grid.minor.x = element_blank(),  # remove minor vertical gridlines
+#     panel.grid.minor.y = element_blank(),  # remove minor horizontal gridlines
+#     panel.grid.major.y = element_line(color = "grey85", linewidth = 0.4)
+#   )
 
 sem_y <- ggplot(stats_y, aes(x = x, y = sem)) +
   geom_ribbon(aes(ymin = sem_lower, ymax = sem_upper), fill = "blue", alpha = 0.20) +
@@ -652,26 +652,26 @@ sig_df_z <- data.frame(
   sig  = stats_z$sig
 )
 
-raw_x <- ggplot(df_summary_x, aes(x = time, y = mean_value, color = group, fill = group)) +
-  geom_rect(data = subset(sig_df_x, sig == TRUE), aes(xmin = time - 0.5, xmax = time + 0.5, ymin = -Inf, ymax = Inf), inherit.aes = FALSE, fill = "#D9D9D9", alpha = 0.5) +
-  geom_ribbon(aes(ymin = sd_lower, ymax = sd_upper), alpha = 0.25, color = NA) +
-  geom_line(linewidth = 0.6) +
-  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
-  labs(title = "Saggital Plane (flex(+)/ext(-))", x = NULL, y = "Angle (°)") +
-  theme_bw() +
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 8),
-    #legend.background = element_rect(fill = "white", color = "black"),
-    #legend.position = c(0.83, 0.25),
-    legend.title = element_blank(),
-    legend.text = element_text(size = 8),
-    legend.key.size = unit(0.3, "cm")) +
-  theme(axis.title.y = element_text(size = 8)) +
-  group_scales +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+# raw_x <- ggplot(df_summary_x, aes(x = time, y = mean_value, color = group, fill = group)) +
+#   geom_rect(data = subset(sig_df_x, sig == TRUE), aes(xmin = time - 0.5, xmax = time + 0.5, ymin = -Inf, ymax = Inf), inherit.aes = FALSE, fill = "#D9D9D9", alpha = 0.5) +
+#   geom_ribbon(aes(ymin = sd_lower, ymax = sd_upper), alpha = 0.25, color = NA) +
+#   geom_line(linewidth = 0.6) +
+#   scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
+#   labs(title = "Saggital Plane (flex(+)/ext(-))", x = NULL, y = "Angle (°)") +
+#   theme_bw() +
+#   theme(
+#     plot.title = element_text(hjust = 0.5, size = 8),
+#     #legend.background = element_rect(fill = "white", color = "black"),
+#     #legend.position = c(0.83, 0.25),
+#     legend.title = element_blank(),
+#     legend.text = element_text(size = 8),
+#     legend.key.size = unit(0.3, "cm")) +
+#   theme(axis.title.y = element_text(size = 8)) +
+#   group_scales +
+#   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 
-##############################library(ggnewscale)
+##############################
 library(ggnewscale)
 
 raw_x <- ggplot(df_summary_x, aes(x = time, y = mean_value, color = group, fill = group)) +
