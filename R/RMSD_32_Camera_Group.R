@@ -1,3 +1,7 @@
+# ----------
+# This code calculates the root mean squared deviation as compared to all 32 cameras processed together.
+# ----------
+
 rm(list = ls()) # clear the workspace
 set.seed(123) # sets a fixed random seed
 start_time <- Sys.time() # record the code start time
@@ -323,7 +327,7 @@ rmsd_plot <-
 
 rmsd_plot
 
-ggsave(filename = "Plots/RMSD/Test.png", plot = rmsd_plot, width = 8, height = 6, dpi = 600)
+#ggsave(filename = "Plots/RMSD/Test.png", plot = rmsd_plot, width = 8, height = 6, dpi = 600)
 
 ### Summary values ###
 rmsd_summary <- rmsd_results %>%

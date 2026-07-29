@@ -1,3 +1,8 @@
+# ----------
+# This code is just the code used to trial out the RMSD calculations.
+# ----------
+
+
 rm(list = ls()) # clear the workspace
 set.seed(123) # sets a fixed random seed
 # -------------------- #
@@ -263,4 +268,5 @@ rmsd_x <- ggplot(plot_x,
     panel.grid.minor = element_blank()
   )
 
-ggsave(filename = "Plots/RMSD/Test.png", plot = rmsd_x, width = 8, height = 6, dpi = 600)
+rmsd_x
+#ggsave(filename = "Plots/RMSD/Test.png", plot = rmsd_x, width = 8, height = 6, dpi = 600)

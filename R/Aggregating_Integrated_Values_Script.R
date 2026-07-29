@@ -1,3 +1,7 @@
+# ----------
+# This code essentially was aggregating the outputted ICC values for each joint and width to create one complete file.
+# ----------
+
 rm(list = ls()) # clear the workspace
 
 library(dplyr)

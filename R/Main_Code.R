@@ -13,6 +13,7 @@ library(ggplot2) # main plotting library
 library(palmerpenguins) # used for examples and learning ggplot
 library(ggthemes) # extra themes for ggplot2
 library(patchwork) # combine multiple ggplots together
+library(ggnewscale)
 
 # --------------------
 # Load, clean and format headers
@@ -80,8 +81,6 @@ for (col in 1:ncol(data_clean)) { # loops through the number of columns
 data_clean <- rbind(trial_numbers, data_clean) # prepends the trial numbers to the first row
 
 
-########## START OF CHATGPT CODE
-
 # convert to dataframe
 data_clean <- as.data.frame(data_clean)
 
@@ -131,8 +130,6 @@ averaged_data <- rbind(meta_trial, meta_subject, meta_joint, meta_group, meta_pl
 rownames(averaged_data)[1:5] <- c("Trial","Subject","Joint","Group","Plane")
 
 data_clean_mean <- averaged_data
-
-########## END OF CHATGPT CODE
 
 # --------------------
 # Linear mixed effect modelling and bootstrapping
@@ -251,9 +248,6 @@ for (plane_name in PLANES) {
     # 95% confidence intervals, removes NA if did not converge
     icc_ci <- quantile(boot_results$t[,1], probs = c(0.025, 0.975), na.rm = TRUE)
     sem_ci <- quantile(boot_results$t[,2], probs = c(0.025, 0.975), na.rm = TRUE)
-
-    # icc_ci <- c(0, 0.5)
-    # sem_ci <- c(0, 0.1)
     
     icc_lower[i] <- icc_ci[1] # stores lower
     icc_upper[i] <- icc_ci[2] # stores higher
@@ -341,111 +335,6 @@ stats_x <- all_results[["X"]]
 stats_y <- all_results[["Y"]]
 stats_z <- all_results[["Z"]]
 
-# icc_x <- ggplot(stats_x, aes(x = x, y = icc)) +
-#   geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper), fill = "orange", alpha = 0.20) +
-#   geom_line(color = "orange", linewidth = 0.6) +
-#   coord_cartesian(ylim = c(0,1)) +
-#   scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
-#   scale_y_continuous(breaks = seq(0, 1, by = 0.2), labels = c("0", "0.2", "0.4", "0.6", "0.8", "1"), expand = c(0, 0)) +  labs(x = NULL, y = NULL) +
-#   labs(x = NULL, y = "ICC (3,1)") +
-#   theme_bw() +
-#   theme(plot.title = element_text(hjust = 0.5)) +
-#   theme(axis.title.y = element_text(size = 8)) +
-#   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-
-
-# ###########################################
-# icc_x <- ggplot(stats_x, aes(x = x)) +
-#   # CI ribbon (mapped to legend)
-#   geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper, fill = "CI"), alpha = 0.20, color = NA) +
-#   # ICC line (mapped to legend)
-#   geom_line(aes(y = icc, color = "ICC"), linewidth = 0.6) +
-#   coord_cartesian(ylim = c(0, 1)) +
-#   scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 20), expand = c(0, 0)) +
-#   scale_y_continuous(breaks = seq(0, 1, 0.2), labels = c("0", "0.2", "0.4", "0.6", "0.8", "1"), expand = c(0, 0)) +
-#   # 🔥 manual legend styling
-#   scale_color_manual(name = NULL, values = c("ICC" = "orange")) +  scale_fill_manual( name = NULL, values = c("CI" = "orange")) +
-#   labs(x = NULL, y = "ICC (3,1)") +
-#   theme_bw() +
-#   theme(
-#     axis.title.y = element_text(size = 8),
-#     panel.grid.major = element_blank(),
-#     panel.grid.minor = element_blank(),
-#     legend.key.size = unit(0.3, "cm"),
-#     legend.spacing.x = unit(0.05, "cm"))
-# 
-# 
-# icc_x <- ggplot(stats_x, aes(x = x)) +
-#   geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper, fill = "ICC/CI"), alpha = 0.20, color = NA) +
-#   geom_line(aes(y = icc, color = "ICC/CI"), linewidth = 0.6) +
-#   
-#   scale_fill_manual(values = c("ICC/CI" = "orange")) +
-#   scale_color_manual(values = c("ICC/CI" = "orange")) +
-#   
-#   #guides(
-#   #  fill = guide_legend(title = "ICC & CI"),
-#   #  color = guide_legend(title = "ICC & CI")
-#   #) +
-#   
-#   theme_bw()
-# 
-# 
-# 
-# sem_x <- ggplot(stats_x, aes(x = x)) +
-#   
-#   # CI ribbon (legend = CI)
-#   geom_ribbon(
-#     aes(ymin = sem_lower,
-#         ymax = sem_upper,
-#         fill = "CI"),
-#     alpha = 0.20,
-#     color = NA
-#   ) +
-#   
-#   # SEM line (legend = SEM)
-#   geom_line(
-#     aes(y = sem,
-#         color = "SEM"),
-#     linewidth = 0.6
-#   ) +
-#   
-#   coord_cartesian(ylim = c(0, 3)) +
-#   
-#   scale_x_continuous(
-#     limits = c(0, 100),
-#     breaks = seq(0, 100, 20),
-#     expand = c(0, 0)
-#   ) +
-#   
-#   scale_y_continuous(
-#     breaks = seq(0, 3, 1),
-#     expand = c(0, 0)
-#   ) +
-#   
-#   # Manual legend styling
-#   scale_color_manual(
-#     name = NULL,
-#     values = c("SEM" = "blue")
-#   ) +
-#   
-#   scale_fill_manual(
-#     name = NULL,
-#     values = c("CI" = "blue")
-#   ) +
-#   
-#   labs(
-#     x = NULL,
-#     y = "SEM"
-#   ) +
-#   
-#   theme_bw() +
-#   theme(
-#     axis.title.y = element_text(size = 8),
-#     panel.grid.major = element_blank(),
-#     panel.grid.minor = element_blank(),
-#     legend.key.size = unit(0.3, "cm")
-#   )
-
 
 # --- ICC plots (x, y, z all need this treatment) ---
 icc_x <- ggplot(stats_x, aes(x = x, y = icc)) +
@@ -478,6 +367,27 @@ icc_x <- ggplot(stats_x, aes(x = x, y = icc)) +
     panel.grid.major = element_blank(), 
     panel.grid.minor = element_blank()
   )
+
+icc_y <- ggplot(stats_y, aes(x = x, y = icc)) +
+  geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper), fill = "orange", alpha = 0.20) +
+  geom_line(color = "orange", linewidth = 0.6) +
+  coord_cartesian(ylim = c(0,1)) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
+  scale_y_continuous(breaks = seq(0, 1, by = 0.2), labels = c("0", "0.2", "0.4", "0.6", "0.8", "1"), expand = c(0, 0)) +  labs(x = NULL, y = NULL) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+icc_z <- ggplot(stats_z, aes(x = x, y = icc)) +
+  geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper), fill = "orange", alpha = 0.20) +
+  geom_line(color = "orange", linewidth = 0.6) +
+  coord_cartesian(ylim = c(0,1)) +
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
+  scale_y_continuous(breaks = seq(0, 1, by = 0.2), labels = c("0", "0.2", "0.4", "0.6", "0.8", "1"), expand = c(0, 0)) +  labs(x = NULL, y = NULL) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
 
 # --- SEM plots (x, y, z all need this treatment) ---
 sem_x <- ggplot(stats_x, aes(x = x, y = sem)) +
@@ -512,45 +422,6 @@ sem_x <- ggplot(stats_x, aes(x = x, y = sem)) +
     panel.grid.minor.y = element_blank(),
     panel.grid.major.y = element_line(color = "grey85", linewidth = 0.4)
   )
-# ######################################
-
-
-icc_y <- ggplot(stats_y, aes(x = x, y = icc)) +
-  geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper), fill = "orange", alpha = 0.20) +
-  geom_line(color = "orange", linewidth = 0.6) +
-  coord_cartesian(ylim = c(0,1)) +
-  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
-  scale_y_continuous(breaks = seq(0, 1, by = 0.2), labels = c("0", "0.2", "0.4", "0.6", "0.8", "1"), expand = c(0, 0)) +  labs(x = NULL, y = NULL) +
-  theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-
-icc_z <- ggplot(stats_z, aes(x = x, y = icc)) +
-  geom_ribbon(aes(ymin = icc_lower, ymax = icc_upper), fill = "orange", alpha = 0.20) +
-  geom_line(color = "orange", linewidth = 0.6) +
-  coord_cartesian(ylim = c(0,1)) +
-  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
-  scale_y_continuous(breaks = seq(0, 1, by = 0.2), labels = c("0", "0.2", "0.4", "0.6", "0.8", "1"), expand = c(0, 0)) +  labs(x = NULL, y = NULL) +
-  theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-
-# sem_x <- ggplot(stats_x, aes(x = x, y = sem)) +
-#   geom_ribbon(aes(ymin = sem_lower, ymax = sem_upper), fill = "blue", alpha = 0.20) +
-#   geom_line(color = "blue", linewidth = 0.6) +
-#   coord_cartesian(ylim = c(0, 3)) +
-#   scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
-#   scale_y_continuous(breaks = seq(0, 3, by = 1), labels = c("0", "1.0", "2.0", "3.0"),expand = c(0, 0)) +
-#   labs(x = "Gait Cycle (%)", y = "SEM (°)") +
-#   theme_bw() +
-#   theme(axis.title.y = element_text(size = 8)) +
-#   theme(axis.title.x = element_text(size = 8)) +
-#   theme(
-#     panel.grid.major.x = element_blank(),  # remove vertical gridlines
-#     panel.grid.minor.x = element_blank(),  # remove minor vertical gridlines
-#     panel.grid.minor.y = element_blank(),  # remove minor horizontal gridlines
-#     panel.grid.major.y = element_line(color = "grey85", linewidth = 0.4)
-#   )
 
 sem_y <- ggplot(stats_y, aes(x = x, y = sem)) +
   geom_ribbon(aes(ymin = sem_lower, ymax = sem_upper), fill = "blue", alpha = 0.20) +
@@ -652,30 +523,8 @@ sig_df_z <- data.frame(
   sig  = stats_z$sig
 )
 
-# raw_x <- ggplot(df_summary_x, aes(x = time, y = mean_value, color = group, fill = group)) +
-#   geom_rect(data = subset(sig_df_x, sig == TRUE), aes(xmin = time - 0.5, xmax = time + 0.5, ymin = -Inf, ymax = Inf), inherit.aes = FALSE, fill = "#D9D9D9", alpha = 0.5) +
-#   geom_ribbon(aes(ymin = sd_lower, ymax = sd_upper), alpha = 0.25, color = NA) +
-#   geom_line(linewidth = 0.6) +
-#   scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20), expand = c(0, 0)) +
-#   labs(title = "Saggital Plane (flex(+)/ext(-))", x = NULL, y = "Angle (°)") +
-#   theme_bw() +
-#   theme(
-#     plot.title = element_text(hjust = 0.5, size = 8),
-#     #legend.background = element_rect(fill = "white", color = "black"),
-#     #legend.position = c(0.83, 0.25),
-#     legend.title = element_blank(),
-#     legend.text = element_text(size = 8),
-#     legend.key.size = unit(0.3, "cm")) +
-#   theme(axis.title.y = element_text(size = 8)) +
-#   group_scales +
-#   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-
-
-##############################
-library(ggnewscale)
 
 raw_x <- ggplot(df_summary_x, aes(x = time, y = mean_value, color = group, fill = group)) +
-  # Grey shading layer — uses its OWN fill scale below
   geom_rect(data = subset(sig_df_x, sig == TRUE), 
             aes(xmin = time - 0.5, xmax = time + 0.5, 
                 ymin = -Inf, ymax = Inf, fill = "Sig. Diff. (p < 0.05)"), 
@@ -689,7 +538,6 @@ raw_x <- ggplot(df_summary_x, aes(x = time, y = mean_value, color = group, fill 
     )
   ) +
   new_scale_fill() +
-  # Ribbon + line layers — use the new fill scale
   geom_ribbon(aes(ymin = sd_lower, ymax = sd_upper, fill = group), alpha = 0.25, color = NA) +
   geom_line(linewidth = 0.6) +
   scale_color_manual(name = "Mean ± SD", values = group_colours, guide = guide_legend(order = 1)) +
@@ -706,9 +554,6 @@ raw_x <- ggplot(df_summary_x, aes(x = time, y = mean_value, color = group, fill 
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank()
   )
-############################
-
-
 
 raw_y <- ggplot(df_summary_y, aes(x = time, y = mean_value, color = group, fill = group)) +
   geom_rect(data = subset(sig_df_y, sig == TRUE), aes(xmin = time - 0.5, xmax = time + 0.5, ymin = -Inf, ymax = Inf), inherit.aes = FALSE, fill = "#D9D9D9", alpha = 0.5) +
@@ -748,7 +593,7 @@ complete_plot <- (raw_x | raw_y | raw_z ) / (icc_x | icc_y | icc_z) / (sem_x | s
 complete_plot
 
 # Save the plot
-ggsave(filename = "Plots/Right_Leg_ICC_By_Mean_With_Significance/W1_RANK_test.png", plot = complete_plot, width = 8, height = 6, dpi = 600)
+# ggsave(filename = "Plots/Right_Leg_ICC_By_Mean_With_Significance/W1_RANK_test.png", plot = complete_plot, width = 8, height = 6, dpi = 600)
 
 # --------------------#
 end_time = Sys.time()

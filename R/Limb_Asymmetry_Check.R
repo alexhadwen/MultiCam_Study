@@ -1,3 +1,8 @@
+# ----------
+# This code outputs a histogram comparing the left and right limbs, the point is just to determine whether it
+# was a reasonable assumption to just use the left leg when analyzing the data. It was.
+# ----------
+
 rm(list = ls()) # clear the workspace
 set.seed(123) # sets a fixed random seed
 start_time <- Sys.time() # record the code start time
@@ -337,60 +342,10 @@ hist_plot <- ggplot(side_results, aes(x = diff)) +
   
 hist_plot
 
-ggsave(
-  filename = "Plots/Right_vs_Left/Histogram.png",
-  plot = hist_plot,
-  width = 4,
-  height = 3,
-  dpi = 600
-)
-
-
-# side_results <- side_results %>%
-#   mutate(
-#     mean_rmsd = (right_rmsd + left_rmsd) / 2,
-#     diff_rmsd = right_rmsd - left_rmsd
-#   )
-# 
-# bias <- mean(side_results$diff_rmsd)
-# 
-# loa_upper <- bias + 1.96 * sd(side_results$diff_rmsd)
-# loa_lower <- bias - 1.96 * sd(side_results$diff_rmsd)
-# 
-# ba_plot <- ggplot(
-#   side_results,
-#   aes(x = mean_rmsd, y = diff_rmsd)
-# ) +
-#   geom_point(
-#     alpha = 0.6,
-#     size = 1.5
-#   ) +
-#   geom_hline(
-#     yintercept = bias,
-#     linewidth = 0.6
-#   ) +
-#   geom_hline(
-#     yintercept = loa_upper,
-#     linetype = "dashed",
-#     linewidth = 0.5
-#   ) +
-#   geom_hline(
-#     yintercept = loa_lower,
-#     linetype = "dashed",
-#     linewidth = 0.5
-#   ) +
-#   labs(
-#     title = "Bland–Altman Plot",
-#     x = "Mean RMSD (°)",
-#     y = "Right - Left RMSD (°)"
-#   ) +
-#   theme_bw() +
-#   theme(
-#     plot.title = element_text(hjust = 0.5, size = 8),
-#     axis.title = element_text(size = 8),
-#     axis.text = element_text(size = 8),
-#     panel.grid.major = element_blank(),
-#     panel.grid.minor = element_blank()
-#   )
-# 
-# ba_plot
+# ggsave(
+#   filename = "Plots/Right_vs_Left/Histogram.png",
+#   plot = hist_plot,
+#   width = 4,
+#   height = 3,
+#   dpi = 600
+# )

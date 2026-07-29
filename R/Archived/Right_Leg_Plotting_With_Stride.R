@@ -1,3 +1,7 @@
+# ----------
+# This is the code before the average of the strides per person was used. Can go back to this code, it works well. Just a bit pivot away from the average stride number.
+
+
 rm(list = ls()) # clear the workspace
 set.seed(123) # sets a fixed random seed
 start_time <- Sys.time() # record the code start time

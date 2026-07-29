@@ -1,3 +1,7 @@
+# ----------
+# This is the code for the left leg, before there was a transfer to the right leg because of stride number selection.
+# ----------
+
 rm(list = ls()) # clear the workspace
 set.seed(123) # sets a fixed random seed
 start_time <- Sys.time() # record the code start time
